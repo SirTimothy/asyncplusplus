@@ -319,7 +319,7 @@ threadpool_scheduler::~threadpool_scheduler()
 	// global destructors in DLLs. Waiting for dead threads to exit will likely
 	// result in deadlocks, so we just exit early if we detect that the process
 	// is exiting.
-#ifndef __cplusplus_winrt
+#if WINAPI_PARTITION_DESKTOP
 	auto RtlDllShutdownInProgress = reinterpret_cast<BOOLEAN(WINAPI *)()>(GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlDllShutdownInProgress"));
 	if (RtlDllShutdownInProgress && RtlDllShutdownInProgress())
 #endif

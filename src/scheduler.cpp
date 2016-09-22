@@ -141,7 +141,7 @@ class default_scheduler_impl: public threadpool_scheduler {
 		std::size_t num_threads;
 #ifdef _MSC_VER
 		char* s;
-# ifdef __cplusplus_winrt
+# if WINAPI_PARTITION_APP
 		// Windows store applications do not support environment variables
 		s = nullptr;
 # else
@@ -157,7 +157,7 @@ class default_scheduler_impl: public threadpool_scheduler {
 		else
 			num_threads = hardware_concurrency();
 
-#if defined(_MSC_VER) && !defined(__cplusplus_winrt)
+#if defined(_MSC_VER) && !WINAPI_PARTITION_APP
 		// Free the string allocated by _dupenv_s
 		free(s);
 #endif
