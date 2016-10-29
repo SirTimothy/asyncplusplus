@@ -112,22 +112,30 @@ typename void_to_fake_void<decltype(std::declval<Func>()())>::type invoke_fake_v
 {
 	return detail::invoke_fake_void(std::forward<Func>(f));
 }
+template<typename Func, typename Param>
+typename void_to_fake_void<decltype(std::declval<Func>()())>::type invoke_fake_void(Func&& f, Param&& p)
+{
+	return detail::invoke_fake_void([&f] {return std::forward<Func>(f)();});
+}
 
 // Various properties of a continuation function
 template<typename Func, typename Parent, typename = decltype(std::declval<Func>()(std::declval<Parent>().get()))>
-std::true_type is_value_cont_helper(const Parent&, int, int);
+std::true_type is_value_cont_helper(const Parent&, int, int, int);
 template<typename Func, typename = decltype(std::declval<Func>()())>
-std::true_type is_value_cont_helper(const task<void>&, int, int);
+std::true_type is_value_cont_helper(const async::task<void>&, int, int, int);
 template<typename Func, typename = decltype(std::declval<Func>()())>
-std::true_type is_value_cont_helper(const shared_task<void>&, int, int);
+std::true_type is_value_cont_helper(const async::shared_task<void>&, int, int, int);
 template<typename Func, typename Parent, typename = decltype(std::declval<Func>()(std::declval<Parent>()))>
+std::false_type is_value_cont_helper(const Parent&, int, int, ...);
+template<typename Func, typename Parent, typename = decltype(std::declval<Func>()())>
 std::false_type is_value_cont_helper(const Parent&, int, ...);
 template<typename Func, typename Parent>
 void is_value_cont_helper(const Parent&, ...);
+
 template<typename Parent, typename Func>
 struct continuation_traits {
 	typedef typename std::decay<Func>::type decay_func;
-	typedef decltype(detail::is_value_cont_helper<decay_func>(std::declval<Parent>(), 0, 0)) is_value_cont;
+	typedef decltype(detail::is_value_cont_helper<decay_func>(std::declval<Parent>(), 0, 0, 0)) is_value_cont;
 	static_assert(!std::is_void<is_value_cont>::value, "Parameter type for continuation function is invalid for parent task type");
 	typedef typename std::conditional<is_value_cont::value, typename void_to_fake_void<decltype(std::declval<Parent>().get())>::type, Parent>::type param_type;
 	typedef decltype(detail::fake_void_to_void(detail::invoke_fake_void(std::declval<decay_func>(), std::declval<param_type>()))) result_type;
