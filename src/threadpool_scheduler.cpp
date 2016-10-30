@@ -404,6 +404,18 @@ void threadpool_scheduler::schedule(task_run_handle t)
 	}
 }
 
+
+
+std::size_t threadpool_scheduler::get_num_threads() const
+{
+	return impl->thread_data.size();
+}
+
+std::thread::native_handle_type threadpool_scheduler::get_thread_native_handle(std::size_t thread) const
+{
+	return impl->thread_data[thread].handle.native_handle();
+}
+
 } // namespace async
 
 #if defined(__GNUC__) && !defined(_WIN32)

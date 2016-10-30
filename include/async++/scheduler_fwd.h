@@ -138,6 +138,11 @@ public:
 
 	// Schedule a task to be run in the thread pool
 	LIBASYNC_EXPORT void schedule(task_run_handle t);
+
+
+	LIBASYNC_EXPORT std::size_t get_num_threads() const;
+
+	LIBASYNC_EXPORT std::thread::native_handle_type get_thread_native_handle(std::size_t thread) const;
 };
 
 namespace detail {
