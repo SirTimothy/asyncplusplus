@@ -305,7 +305,11 @@ threadpool_scheduler::threadpool_scheduler(std::size_t num_threads)
 	: impl(new detail::threadpool_data(num_threads))
 {
 	// Start worker threads
-	impl->thread_data[0].handle = std::thread(detail::recursive_spawn_worker_thread, impl.get(), 0, num_threads);
+	for (std::size_t i = 0; i < num_threads; ++i)
+	{
+		impl->thread_data[i].handle = std::thread(detail::worker_thread, impl.get(), i);
+	}
+	//impl->thread_data[0].handle = std::thread(detail::recursive_spawn_worker_thread, impl.get(), 0, num_threads);
 #ifdef BROKEN_JOIN_IN_DESTRUCTOR
 	impl->thread_data[0].handle.detach();
 #endif
